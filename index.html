@@ -1,0 +1,76 @@
+<!doctype html>
+ 
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8" />
+        <title>Aussagenlogik 0.0.20130211-2341</title>
+        <!--
+            - jQuery 1.9.0
+            - jQueryUI 1.10.0
+            - custom-theme
+        -->
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
+        <link rel="stylesheet" href="./css/custom-theme/jquery-ui-1.10.1.custom.css" />
+        <script src="http://code.jquery.com/jquery-1.9.0.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+        <!--
+            - jqGrid
+        -->
+        <link rel="stylesheet" href="./css/ui.jqgrid.css" />
+        <script src="./js/libs/jqGrid/grid.locale-de.js"></script>
+        <script src="js/libs/jqGrid/jquery.jqGrid.src.js"></script>
+        <!--
+            - JSON extensions
+        -->
+        <script src="./js/libs/json2.js"></script>
+        <!--
+            - Aussagenlogik custom stylesheets
+        -->
+        <link rel="stylesheet" href="./css/custom-theme/custom.css" />
+        <!--
+            - Aussagenlogik program logic
+        -->
+        <script src="./js/PropLogic.js" type="text/javascript" defer></script>
+        <script src="./js/buttonHandler.js" defer></script>
+        <script src="./js/libs/toolkit/onf.js" type="text/javascript"></script>
+        
+    </head>
+    <body>
+        
+        <div id="menu">
+            <div id="menu_tabs"></div>
+            <div id="menu_items">
+                <input id="menu_sticky" type="checkbox" checked />
+                <label for="menu_sticky" id="menu_sticky_label">Keep Open</label>
+                <div id="tableCMD">
+                    <input id="spin_tVars" name="tVars" /><br />
+                    <button id='btn_addTable'>Add Table</button><br />
+                    <button id='btn_AND'>negate</button>
+                </div>
+            </div>
+            <div id="menuOpener"></div>
+        </div>
+        
+        <!-- Here goes the magic! -->
+        <div id="tTableWorkspace">
+            
+        </div>
+        <!-- Here the show is over :,( -->
+
+        <!-- dialogs -->
+        <div id="dialog_spin_tVars" title="Tabelle erstellen: Ungueltiger Wert.">
+            <p>
+                <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 0px 0;"></span>
+                Bitte waehle einen Wert<br />
+                zwischen 1 und 2147483647!
+            </p>
+        </div>
+        <!-- /dialogs -->
+
+        <!-- Well, we have to advertise, don't we ;) -->
+        <div id="links"><a href="http://www.workofprogress.org/" target="_blank">Work of Progress</a> | <a href="http://www.iq6t9.de/" target="_blank">IQ69 - We'll show you crazy!</a></div>
+        <!-- Phew, luckily this wasn't that much, nor anoying. -->
+
+    </body>
+</html>
