@@ -18,10 +18,12 @@
  * If not, see <http://www.gnu.org/licenses/>.
  *
  * ! HOWEVER !
+ *
  * These are code-snippets I picked up or created (see @author notation)
  * over the years, so I consider all of this to be public property;
  * therefore I can and will not take credit for them ;).
  *
+ * ! REVEWOH !
  */
 
 /*
@@ -90,8 +92,10 @@ String.prototype.globalTrim = function() {
     return r;
 };
 
-if(!('contains' in String.prototype))
-  String.prototype.contains = function(str, startIndex) { return -1!==this.indexOf(str, startIndex); };
+if (!('contains' in String.prototype))
+  String.prototype.contains = function(str, startIndex) {
+    return -1 !== this.indexOf(str, startIndex);
+  };
 
 /*
  * Boolean()

@@ -54,13 +54,29 @@ var BolAlg = function() { 'use strict'; return new BolAlg.init(); };
 BolAlg = BolAlg.prototype = {
 
     statements: new Array(),
+    ttTarget: null,
 
     /**
-     * constructor
+     * Constructor
+     * @param {TruthTable} tt TruthTable Object to work with.
      * @return {void}
+     * @constructor
      */
-    init: function() {},
+    init: function(tt) {
+        this.ttTarget = tt;
+        console.log(this.ttTarget);
+        return;
+    },
 
+    updateTableData: function() {
+        var rows = this.ttTarget.datastr.rows,
+              colNames = this.ttTarget.datastr.colNames,
+              colModel = this.ttTarget.datastr.colModel,
+              tmpModel = null,
+              cell = null,
+              cellen = 0;
+
+    },
 /**
 * Basic operations.
 * Built in boolean/binary operations ()
@@ -150,6 +166,7 @@ BolAlg = BolAlg.prototype = {
     /**
      * String literals for logical operators.
      * @type {Object}
+     * @constructor
      */
     Operators: {
         CONJUNCT: '∧',
@@ -157,7 +174,7 @@ BolAlg = BolAlg.prototype = {
         NEGATE: '¬',
 
         isOperator: function(o) {
-            for (var op in this)  {
+            for (var op in this) {
                 if (o === this[op])
                     return true;
             }
@@ -167,11 +184,12 @@ BolAlg = BolAlg.prototype = {
 
  /**
   * Represents a broken down (by brackets) single statement.
+  * Will be displayed as seperate column in truth-table (showInTable)
   * @param  {String} expr Expression to evaluate.
   * @constructor
   */
     piece: function(expr) {
-        this.expr = expr;
+        this.expr = this.wexpr = expr;
         this.evaluated = null;
         this.showInTable = true;
         this.rows = [
@@ -184,119 +202,128 @@ BolAlg = BolAlg.prototype = {
             a: 0,
             b: 1,
             getValue: function(v, row) {
-                return row.cell[this[v]];
+                return (v == 'false') ? false :
+                            (v == 'true') ? true : row.cell[this[v]];
             }
         };
 
-        this.operator = '',
+        //this.operator = '',
         // position of last operator in expression
         this.lop = -1;
         // next operator
         // this.no = 0;
         // value of last evaluation
         this.lasteval = null;
+        // operation (function) in use
+        this.oiu = null;
+        // number of (bracketed) patterns replaced
+        this.bpr = 1;
 
-        // regular expression to search for operators
-        // this.re = new RegExp('[∧∨]?(.*)([∧]+)(.*(?!\\())[∧∨]?');
-        // Iterating over this to NOT use regular expressions.
-
-        this.evaluate = function() {
+        this.evaluate = function(wexpr) {
 
             var matches = new Array();
             var stmts = BolAlg.statements;
 
             this.rows.forEach(function(row, idx, arr) {
+                if (typeof wexpr === 'string') {
+                    this.wexpr = wexpr;
+                } else if (stmts.length > 0) {
+                    // (still) got some brackets in wexpr?
+                    while (this.wexpr.indexOf('(') > -1) {
+                        var srch = '(' +
+                            stmts[stmts.length - this.bpr].expr +
+                        ')';
+                        var rplc = stmts[stmts.length - this.bpr].evaluated;
+                        this.wexpr = this.wexpr.replace(srch, rplc);
 
-                if (stmts.length > 0) {
-                    var srch = '(' +
-                        stmts[stmts.length - 1].expr +
-                    ')';
-                    var rplc = stmts[stmts.length - 1].evaluated;
-                    this.expr = this.expr.replace(srch, rplc);
-                
-                console.log(this.expr);
-            } else {
-
-                    /*matches = this.re.exec(this.expr);
-                    console.log(matches);
-
-                    var opArray = new Array();
-                    matches.shift();
-                    while (matches.length > 0) {
-                        if (this.vars.hasOwnProperty(matches[0])) {
-                            opArray.push(this.vars.getValue(matches.shift(), row));
-                        } else if (BolAlg.Operators.isOperator(matches[0])) {
-                            this.operator = matches.shift();
-                        } else {}
+                        // increment number of replaced
+                        // bracketed statements
+                        this.bpr += 1;
+                        console.log(this.wexpr);
                     }
-                    switch (this.operator) {
+                }
+                // go through every character of current expression
+                for (var i = 0; i <= this.wexpr.length - 1; i++) {
+                    switch (this.wexpr[i]) {
                         case BolAlg.Operators.CONJUNCT:
-                            this.evaluated = Boolean(BolAlg.conjunct(opArray));
+                            this.oiu = BolAlg.conjunct;
                             break;
                         case BolAlg.Operators.DISJUNCT:
-                            this.evaluated = Boolean(BolAlg.disjunct(opArray));
-                            break;
-                        case BolAlg.Operators.NEGATE:
-                            this.evaluated = Boolean(BolAlg.conjunct(opArray));
+                            this.oiu = BolAlg.disjunct;
                             break;
                         default:
+                            continue;
                             break;
-                        }*/
-
-                        // go through every character of current expression
-                        this.expr = 'a∧b∧a∨a'; // DEBUG
-                        for (var i = 0; i <= this.expr.length - 1; i++) {
-                            switch (this.expr[i]) {
-                                case BolAlg.Operators.CONJUNCT:
-
-                                    // left side, 1st var in array
-                                    var between = this.expr.slice(this.lop + 1, i);
-
-                                    // update position of this operator
-                                    // as last found operator
-                                    this.lop = i;
-                                    
-                                    // ... are determined by the positions
-                                    // of the last preceding (this.lop) or
-                                    // next following operator
-                                    var nop = this.getNOP();
-
-                                    // right side, 2nd var in array
-                                    this.expr.slice(i + 1, nop);
-
-                                    console.log('expr: ' + this.expr);
-                                    console.log('i: ' + i);
-                                    console.log('nop:' + nop);
-                                    console.log('between: ' + between);
-
-                                    // reset i to position of next operator
-                                    // leaving out the variable ('s characters)
-                                    // inbetween.
-                                    i = nop - 1;
-
-                                    break;
-                                case BolAlg.Operators.DISJUNCT:
-                                    break;
-                            }
+                    }
+                    // left side, 1st var in array
+                    if (this.lasteval == null) {
+                        var left = this.wexpr.slice(this.lop + 1, i);
+                        if (left[0] == BolAlg.Operators.NEGATE) {
+                            left = left.slice(1, left.length);
+                            var oArray = [!this.vars.getValue(left, row)];
+                        } else {
+                            var oArray = [this.vars.getValue(left, row)];
                         }
-                        throw 'expected stop';
+                    } else {
+                        oArray.push(this.lasteval);
+                    }
 
+                    // update Position of this operator
+                    // as Last found Operator
+                    this.lop = i;
+
+                    // Position of Next (following) Operator
+                    var nop = this.getNOP();
+
+                    // right side, 2nd var in array
+                    var right = this.wexpr.slice(i + 1, nop);
+                    if (right[0] == BolAlg.Operators.NEGATE) {
+                        right = right.slice(1, right.length);
+                        oArray.push(!this.vars.getValue(right, row));
+                    } else {
+                        oArray.push(this.vars.getValue(right, row));
+                    }
+
+                    this.lasteval = this.oiu(oArray);
+
+                    // break out of for-loop
+                    // if no new operator is found after current
+                    if (nop == this.wexpr.length) {
+                        // knowing, that this was the final operator
+                        // we can be sure, there won't be another
+                        // evaluation (for this 'piece'),
+                        // so lasteval becomes our final result
+                        this.evaluated = this.lasteval;
+                        break;
+                    }
+
+                    // reset value Array
+                    oArray.length = 0;
+
+                    // reset i to position of next operator
+                    // leaving out the variable ('s characters)
+                    // inbetween.
+                    i = nop - 1;
                 }
                 console.log(this);
             }, this);
         };
 
         this.getNOP = function() {
-            var r = this.expr.length - 1;
+            var r = this.wexpr.length;
             var op = -1;
-            for(operator in BolAlg.Operators) {
-               if (typeof BolAlg.Operators[operator] === 'string') {
-                    op = this.expr.indexOf(BolAlg.Operators[operator], this.lop +1);
-                    r = (op < r && op != -1) ? op : r;
+            for (operator in BolAlg.Operators) {
+               if (typeof BolAlg.Operators[operator] === 'string' &&
+                    operator != 'NEGATE') {
+                    op = this.wexpr.indexOf(
+                        BolAlg.Operators[operator],
+                        this.lop + 1
+                    );
+                    r = (op != -1 && op < r) ? op : r;
                }
             }
             return r;
-        }
+        };
     },
 
     /**
@@ -361,21 +388,31 @@ BolAlg = BolAlg.prototype = {
             parts.push(text.slice(lcb + 1, text.length));
         }
 
+        // phew all that work, for?
+        // exactly this:
+        // concatenate all results and evaluate
+        var finalStatement = new String();
+        for (var i = 1; i < parts.length; i++) {
+            if (typeof parts[i] === 'string') {
+                finalStatement = finalStatement + parts[i];
+            } else if (parts[i] instanceof Array) {
+                var stmt = parts[i][parts[i].length - 1].evaluated;
+                finalStatement = finalStatement + stmt;
+            }
+        }
+        var finalPiece = new this.piece(parts[0]);
+        finalPiece.evaluate(finalStatement);
         console.log(parts);
-        console.log(this.statements);
+        console.log(finalStatement);
+        console.log(finalPiece);
 
         // throw a SyntaxError and exit, if
-        // - more closing than opening brackets
+        // - more closing than openingi brackets
         // - more opening than closing brackets
         if (openPos.length < closePos.length) {
             throw new SyntaxError("You're missing an opening bracket.");
         } else if (openPos.length > closePos.length) {
             throw new SyntaxError("You're missing a closing bracket.");
-        }
-        console.log('length: ' + openPos.length + ' | ' + closePos.length);
-        closePos.reverse();
-        for (var j = 0; j <= openPos.length - 1; j++) {
-            console.log(openPos[j] + ' | ' + closePos[j]);
         }
     }
 

@@ -80,7 +80,7 @@ DebugArea.prototype.getNowTag = function() {
 };
 
 /*
- * by
+ * made and shared by
  * IQ69 - We'll show you crazy!
  * http://www.iq6t9.de/
  * Raphael Beer <raphael.beer at gmx.de>

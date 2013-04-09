@@ -1,6 +1,12 @@
-var PropLogic = function() { 'use strict'; return new PropLogic.init(); };
-var TruthTable = function(tVars) { 'use strict'; return new TruthTable.init(tVars); };
-var JQGridFeed = function() { 'use strict'; return new JQGridFeed(); };
+var PropLogic = function() {
+    'use strict'; return new PropLogic.init();
+};
+var TruthTable = function(tVars) {
+    'use strict'; return new TruthTable.init(tVars);
+};
+var JQGridFeed = function() {
+    'use strict'; return new JQGridFeed();
+};
 
 PropLogic = PropLogic.prototype = {
 
@@ -14,19 +20,19 @@ PropLogic = PropLogic.prototype = {
 
         // setting up menu
         var spinner = $('#spin_tVars').spinner({min: 1});
-        spinner.spinner("value", 2);
+        spinner.spinner('value', 2);
 
         // dialogs
-        $( "#dialog_spin_tVars" ).dialog({
+        $('#dialog_spin_tVars').dialog({
             autoOpen: false,
             resizable: false,
-            height:170,
+            height: 170,
             width: 290,
             modal: true,
             closeOnEscape: true,
             buttons: {
                 Ok: function() {
-                    $( this ).dialog( "close" );
+                    $(this).dialog('close');
                 }
             }
         });
@@ -39,26 +45,27 @@ PropLogic = PropLogic.prototype = {
     },
 
     /*
-     * Draws table 
-     * 
+     * Draws table
+     *
      * @depends this.gridObject
      * @returns {Boolean}
      */
     drawTable: function(id) {
-        "use strict";
+        'use strict';
 
         //create Dom Object
         this.createDomTable(id);
 
         // get table element
         // this.tables[id] = $("#tTable-" + id);
-        var grid = $("#tTable-" + id);
-        
+        var grid = $('#tTable-' + id);
+
         // unload possible present data
         // TODO: - check if there is any data
         //             - somehow this prevents a directly following
         //               init of new gridObject!
-        //               works on 2nd click (when first object has been cleared!?)
+        //               works on 2nd click (when first object
+        //                                                has been cleared!?)
         // grid.jqGrid('GridUnload');
 
         // adding real close button
@@ -80,7 +87,7 @@ PropLogic = PropLogic.prototype = {
         // set up pager (navigation bar at bottom)
         grid.jqGrid('navGrid',
                             '#tTablePager-' + id,
-                            {edit:false,add:false,del:false});
+                            {edit: false, add: false, del: false});
 
         // make new table draggable
         PropLogic.makeDraggable(id);
@@ -90,29 +97,29 @@ PropLogic = PropLogic.prototype = {
     },
 
     redrawTable: function(id) {
-        var grid = $("#tTable-" + id);
+        var grid = $('#tTable-' + id);
         console.log(grid);
         grid.jqGrid('GridDestroy');
         PropLogic.drawTable(id);
     },
 
     createDomTable: function(id) {
-        var ws = document.getElementById("tTableWorkspace");
+        var ws = document.getElementById('tTableWorkspace');
         var container = document.createElement('div');
-        container.id = "tTableContainer-" + id;
+        container.id = 'tTableContainer-' + id;
 
         /*
         <table id="tTable-0"></table>
          */
         var table = document.createElement('table');
-        table.id = "tTable-" + id;
+        table.id = 'tTable-' + id;
         container.appendChild(table);
 
         /*
         <div id="tTablePager"></div>
          */
         var pager = document.createElement('div');
-        pager.id = "tTablePager-" + id;
+        pager.id = 'tTablePager-' + id;
         container.appendChild(pager);
 
         ws.appendChild(container);
@@ -122,34 +129,33 @@ PropLogic = PropLogic.prototype = {
         //
         // Make the window draggable.
         //
-        $('#gbox_tTable-' + id).draggable ({
-            handle:"div.ui-jqgrid-titlebar",
-            start: function () {
-                $(".ui-jqgrid").removeClass ('ui-jqgrid-active');
-                $(this).addClass ('ui-jqgrid-active');
+        $('#gbox_tTable-' + id).draggable({
+            handle: 'div.ui-jqgrid-titlebar',
+            start: function() {
+                $('.ui-jqgrid').removeClass('ui-jqgrid-active');
+                $(this).addClass('ui-jqgrid-active');
                 console.log(PropLogic.getActiveId());
             }
-        }).click (function () {
-                $(".ui-jqgrid").removeClass ('ui-jqgrid-active');
-                $(this).addClass ('ui-jqgrid-active');
-        }).css ('position', 'absolute');
+        }).click(function() {
+                $('.ui-jqgrid').removeClass('ui-jqgrid-active');
+                $(this).addClass('ui-jqgrid-active');
+        }).css('position', 'absolute');
     },
 
     makeResizable: function(id) {
         //
         // Make the grid resizable.
         //
-        var node = $('#gbox_tTable-'+ id);
+        var node = $('#gbox_tTable-' + id);
         //node.jqGrid('gridResize');
-        node.jqGrid('gridResize', {minWidth:   350,
-    minHeight:  150,
-    stop:
-        function (grid, ev, ui) {
+        node.jqGrid('gridResize', {minWidth: 350,
+        minHeight: 150,
+        stop: function(grid, ev, ui) {
             //
             // There seems to be an issue with resizing the grid so I added
             // this code to remove the "height" style.
             //
-            $(grid.srcElement).parent ().css ("height", null);
+            $(grid.srcElement).parent().css('height', null);
         }}
       );
     },
@@ -161,11 +167,11 @@ PropLogic = PropLogic.prototype = {
 
     setActiveId: function(id) {
         console.log('setting id: ' + id);
-        $(".ui-jqgrid").removeClass ('ui-jqgrid-active');
-        $('#gbox_tTable-' + id).addClass ('ui-jqgrid-active');
+        $('.ui-jqgrid').removeClass('ui-jqgrid-active');
+        $('#gbox_tTable-' + id).addClass('ui-jqgrid-active');
     },
 
-    negate: function(id) {
+    process: function(id) {
         var rows = PropLogic.tableData[id].datastr.rows,
               colNames = PropLogic.tableData[id].datastr.colNames,
               colModel = PropLogic.tableData[id].datastr.colModel,
@@ -243,7 +249,8 @@ TruthTable = TruthTable.prototype = {
         this.gridFeed.colModel = this.getColModel();
         this.gridFeed.rowsArray = this.getRowsArray();
         this.gridFeed.contentObject = this.getContentObject();
-        this.gridFeed.gridObject = this.getGridObject('', '#tTablePager-' + this.gridFeed.id);
+        this.gridFeed.gridObject =
+        this.getGridObject('', '#tTablePager-' + this.gridFeed.id);
 
         this.gridFeed.jsonObject = this.getJSObject();
 
@@ -352,7 +359,9 @@ TruthTable = TruthTable.prototype = {
      * Creates the contentObject.
      * Its 'JSON.stringify'ed version will be fed to jqGrid.
      *
-     * @depends this.gridFeed.rowsArray, this.gridFeed.colNames, this.gridFeed.colModel
+     * @depends this.gridFeed.rowsArray,
+     *                    this.gridFeed.colNames,
+     *                    this.gridFeed.colModel
      * @returns {Object}
      */
     getContentObject: function() {
@@ -371,7 +380,10 @@ TruthTable = TruthTable.prototype = {
     /*
      * Creates the jsonObject.
      *
-     * @depends this.gridFeed.rowsArray, this.gridFeed.gridObject, this.gridFeed.colNames, this.gridFeed.colModel
+     * @depends this.gridFeed.rowsArray,
+     *                    this.gridFeed.gridObject,
+     *                    this.gridFeed.colNames,
+     *                    this.gridFeed.colModel
      * @returns {Object}
      */
     getJSObject: function() {
@@ -386,7 +398,7 @@ TruthTable = TruthTable.prototype = {
         _jsObj.rows = this.gridFeed.rowsArray;
 
         return _jsObj;
-    },
+    }
 };
 
 PropLogic.init();
