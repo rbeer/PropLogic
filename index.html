@@ -4,7 +4,7 @@
     <head>
 
         <meta charset="utf-8" />
-        <title>Aussagenlogik 0.0.20130211-2341</title>
+        <title>PropLogic 0.0.3.20130409-1141</title>
         <!--
             - jQuery 1.9.0
             - jQueryUI 1.10.0
@@ -25,15 +25,16 @@
         -->
         <script src="./js/libs/json2.js"></script>
         <!--
-            - Aussagenlogik custom stylesheets
+            - PropLogic custom stylesheets
         -->
         <link rel="stylesheet" href="./css/custom-theme/custom.css" />
         <!--
-            - Aussagenlogik program logic
+            - PropLogic program logic
         -->
-        <script src="./js/PropLogic.js" type="text/javascript" defer></script>
+        <script src="./js/PropLogic.js" defer></script>
+        <script src="./js/BolAlg.js" ></script>
         <script src="./js/buttonHandler.js" defer></script>
-        <script src="./js/libs/toolkit/onf.js" type="text/javascript"></script>
+        <script src="./js/libs/toolkit/onf.js"></script>
         
     </head>
     <body>
@@ -44,9 +45,28 @@
                 <input id="menu_sticky" type="checkbox" checked />
                 <label for="menu_sticky" id="menu_sticky_label">Keep Open</label>
                 <div id="tableCMD">
+                    <h3>Create table:</h3>
                     <input id="spin_tVars" name="tVars" /><br />
                     <button id='btn_addTable'>Add Table</button><br />
-                    <button id='btn_AND'>negate</button>
+                    <!-- <button id='btn_AND'>negate</button><br /> -->
+                    
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td colspan=2><h3>Parse statements:</h3></td>
+                            </tr>
+                            <tr>
+                                <td colspan=2><button id="btn_parse_conjunct">∧</button><button id="btn_parse_disjunct">∨</button><button id="btn_parse_negate">¬</button></td>
+                            </tr>
+                            <tr>
+                                <td colspan=2><textarea id="txt_parseStmt" placeholder="Add your logical statements here!" wrap="hard" cols=30 rows=7>(¬b∧(a∨((b∧a)∨a)∨b))∨(b∨¬a)∨c</textarea></td>
+                            </tr>
+                            <tr>
+                                <td width=75><button id="btn_parse">Process</button></td>
+                                <td><h3 id="parseHelper"></h3></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div id="menuOpener"></div>
@@ -59,18 +79,18 @@
         <!-- Here the show is over :,( -->
 
         <!-- dialogs -->
-        <div id="dialog_spin_tVars" title="Tabelle erstellen: Ungueltiger Wert.">
+        <div id="dialog_spin_tVars" title="Create table: Invalid value.">
             <p>
                 <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 0px 0;"></span>
-                Bitte waehle einen Wert<br />
-                zwischen 1 und 2147483647!
+                Please choose a value<br />
+                between 1 and 2147483647!
             </p>
         </div>
         <!-- /dialogs -->
 
         <!-- Well, we have to advertise, don't we ;) -->
-        <div id="links"><a href="http://www.workofprogress.org/" target="_blank">Work of Progress</a> | <a href="http://www.iq6t9.de/" target="_blank">IQ69 - We'll show you crazy!</a></div>
-        <!-- Phew, luckily this wasn't that much, nor anoying. -->
+        <div id="links"><a href="http://www.workofprogress.org/" target="_blank">Work of Progress</a><!--  | <a href="http://www.iq6t9.de/" target="_blank">IQ69 - We'll show you crazy!</a> --></div>
+        <!-- Phew, luckily it wasn't that much, nor anoying. -->
 
     </body>
 </html>

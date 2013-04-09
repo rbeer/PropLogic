@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2013 Raphael Beer
  *
  * This file is part of project.name.
@@ -14,7 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with project.name (GPL3.txt).  If not, see <http://www.gnu.org/licenses/>.
+ * along with project.name (GPL3.txt).
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -27,7 +28,7 @@ var sticky = false;
 
 function async(fn, callback) {
     setTimeout(function() {
-        var id = fn($('#spin_tVars').spinner("value"));
+        var id = fn($('#spin_tVars').spinner('value'));
         callback(id);
     }, 0);
 }
@@ -35,10 +36,10 @@ function async(fn, callback) {
 
 
 $('document').ready(function() {
-    
+
     sticky = document.getElementById('menu_sticky').checked;
     if (sticky) $('#menuOpener').addClass('menuCloser');
-    
+
     $('#menu_sticky').click(function() {
         sticky = $(this).is(':checked');
         console.log(sticky);
@@ -78,8 +79,8 @@ $('document').ready(function() {
 
     $('#btn_addTable').click(function() {
 
-        var tVars = $('#spin_tVars').spinner("value");
-        if (tVars === null) {
+        var tVars = $('#spin_tVars').spinner('value');
+        if (tVars === null || 1 > tVars > 2147483647) {
             // request keepOpen for menu
             keepOpen = true;
             // show dialog
@@ -98,18 +99,29 @@ $('document').ready(function() {
         async(PropLogic.addTable, cb);
     });
 
-    $('#btn_AND').click(function() {
-        var ID = PropLogic.getActiveId();
-        PropLogic.negate(ID);
+    $('#btn_parse').click(function() {
+        //BolAlg.init(PropLogic.tableData[PropLogic.getActiveId()]);
+        BolAlg.parse(document.getElementById('txt_parseStmt').innerHTML);
     });
 
+    $('#btn_parse_conjunct').click(function() {
+        document.getElementById('txt_parseStmt').innerHTML += '∧';
+    });
+
+    $('#btn_parse_disjunct').click(function() {
+        document.getElementById('txt_parseStmt').innerHTML += '∨';
+    });
+
+    $('#btn_parse_negate').click(function() {
+        document.getElementById('txt_parseStmt').innerHTML += '¬';
+    });
 });
 
 /*
- * by
+ * made and shared by
  * IQ69 - We'll show you crazy!
  * http://www.iq6t9.de/
  * Raphael Beer <raphael.beer at gmx.de>
  * http://www.workofprogress.org/
- * 
+ *
  */
