@@ -160,3 +160,7 @@ a:hover {
 .ui-jqgrid-active {
   z-index:102;
 }
+
+.ui-jqgrid-titlebar-active {
+  background: url(images/ui-bg_highlight-soft_75_cccccc_1x100_active.png) 50% 50% repeat-x;
+}

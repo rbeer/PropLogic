@@ -36,6 +36,19 @@ PropLogic = PropLogic.prototype = {
                 }
             }
         });
+        $('#dialog_parse_notable').dialog({
+            autoOpen: false,
+            resizable: false,
+            height: 170,
+            width: 290,
+            modal: true,
+            closeOnEscape: true,
+            buttons: {
+                Ok: function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
     },
 
     addTable: function(tVars) {
@@ -50,7 +63,7 @@ PropLogic = PropLogic.prototype = {
      * @depends this.gridObject
      * @returns {Boolean}
      */
-    drawTable: function(id) {
+    drawTable: function(id, gridPos) {
         'use strict';
 
         //create Dom Object
@@ -89,6 +102,9 @@ PropLogic = PropLogic.prototype = {
                             '#tTablePager-' + id,
                             {edit: false, add: false, del: false});
 
+        // set grid to given position
+        if (typeof gridPos === 'object') $('#gbox_tTable-' + id).offset(gridPos);
+
         // make new table draggable
         PropLogic.makeDraggable(id);
 
@@ -98,9 +114,9 @@ PropLogic = PropLogic.prototype = {
 
     redrawTable: function(id) {
         var grid = $('#tTable-' + id);
-        console.log(grid);
+        var gridPos = $('#gbox_tTable-' + id).offset();
         grid.jqGrid('GridDestroy');
-        PropLogic.drawTable(id);
+        PropLogic.drawTable(id, gridPos);
     },
 
     createDomTable: function(id) {
@@ -132,13 +148,23 @@ PropLogic = PropLogic.prototype = {
         $('#gbox_tTable-' + id).draggable({
             handle: 'div.ui-jqgrid-titlebar',
             start: function() {
-                $('.ui-jqgrid').removeClass('ui-jqgrid-active');
+                
+                // remove 'active' class from last active table
+                $('.ui-jqgrid-active').removeClass('ui-jqgrid-active');
+                // remove 'active' class from last active titble bar
+                $('.ui-jqgrid-titlebar-active').removeClass('ui-jqgrid-titlebar-active');
+                // add 'active' class to dragged table
                 $(this).addClass('ui-jqgrid-active');
+                // add 'active' class to tables title bar
+                $(this).find('.ui-jqgrid-titlebar').addClass('ui-jqgrid-titlebar-active');
+                
                 console.log(PropLogic.getActiveId());
             }
         }).click(function() {
                 $('.ui-jqgrid').removeClass('ui-jqgrid-active');
+                $('.ui-jqgrid-titlebar-active').removeClass('ui-jqgrid-titlebar-active');
                 $(this).addClass('ui-jqgrid-active');
+                $(this).find('.ui-jqgrid-titlebar').addClass('ui-jqgrid-titlebar-active');
         }).css('position', 'absolute');
     },
 
@@ -162,13 +188,14 @@ PropLogic = PropLogic.prototype = {
 
     getActiveId: function() {
         var nodeID = $('.ui-jqgrid-active').attr('id');
+        if (typeof nodeID === 'undefined') $('#dialog_parse_notable').dialog('open');
         return nodeID.slice(nodeID.search('-') + 1);
     },
 
     setActiveId: function(id) {
         console.log('setting id: ' + id);
-        $('.ui-jqgrid').removeClass('ui-jqgrid-active');
-        $('#gbox_tTable-' + id).addClass('ui-jqgrid-active');
+        $('.ui-jqgrid-active').removeClass('ui-jqgrid-active');
+        $('#gbox_tTable-' + id).click();
     },
 
     process: function(id) {
@@ -398,6 +425,27 @@ TruthTable = TruthTable.prototype = {
         _jsObj.rows = this.gridFeed.rowsArray;
 
         return _jsObj;
+    },
+
+    /**
+     * Adds column {id} to TruthTable {tt}.
+     * @param {String} id Descriptor and visible title of this column.
+     */
+    addColumn: function(tt, id) {
+        // new column object for colModel
+        var nModel = {
+            editable: false,
+            hidden: false,
+            index: id,
+            name: id,
+            resizable: true,
+            sortable: true,
+            width: 40
+        }
+        // add to colModel
+        tt.datastr.colModel.push(nModel);
+        // add to colNames
+        tt.datastr.colNames.push(id);
     }
 };
 

@@ -100,21 +100,80 @@ $('document').ready(function() {
     });
 
     $('#btn_parse').click(function() {
-        //BolAlg.init(PropLogic.tableData[PropLogic.getActiveId()]);
-        BolAlg.parse(document.getElementById('txt_parseStmt').innerHTML);
+        BolAlg.init(PropLogic.tableData[PropLogic.getActiveId()]);
+        BolAlg.parse($('#txt_parseStmt').val());
     });
 
     $('#btn_parse_conjunct').click(function() {
-        document.getElementById('txt_parseStmt').innerHTML += '∧';
+        insert(document.getElementById('txt_parseStmt'), '∧');
     });
 
     $('#btn_parse_disjunct').click(function() {
-        document.getElementById('txt_parseStmt').innerHTML += '∨';
+        insert(document.getElementById('txt_parseStmt'), '∨');
     });
 
     $('#btn_parse_negate').click(function() {
-        document.getElementById('txt_parseStmt').innerHTML += '¬';
+        insert(document.getElementById('txt_parseStmt'), '¬');
     });
+
+    $('#btn_parse_brackets').click(function() {
+        insert(document.getElementById('txt_parseStmt'), '(');
+    });
+    
+
+    /**
+     * Inserts a string into a HTML node's value.
+     * @param  {Node} node HTML Node to change value for.
+     * @param  {string} s String to add.
+     * @return {void}
+     */
+    var insert = function (node, s) {
+        node.focus();
+        if(typeof node.selectionStart != 'undefined') {
+            
+            // get start and end position of current selection
+            var start = node.selectionStart;
+            var end = node.selectionEnd;
+            
+            // add closing bracket, if there is a selection
+            // and the opening bracket button was clicked.
+            if (start != end && s === '(') {
+                var sc = ')';
+            } else var sc = '';
+
+            var insText = node.value.substring(start, end);
+            
+            node.value = node.value.substr(0, start) + s + insText + sc + node.value.substr(end);
+            var pos;
+            if (insText.length == 0) {
+                pos = start + s.length;
+            } else {
+                pos = start + s.length + insText.length + sc.length;
+            }
+            node.selectionStart = pos;
+            node.selectionEnd = pos;
+        }
+    };
+
+/*    $('#txt_parseStmt').focus(function() {
+        var p = $(this).val().length;
+        $(this).selectRange(p, p);
+    });
+
+    $.fn.selectRange = function(start, end) {
+        return this.each(function() {
+            if (this.setSelectionRange) {
+                this.focus();
+                this.setSelectionRange(start, end);
+            } else if (this.createTextRange) {
+                var range = this.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', end);
+                range.moveStart('character', start);
+                range.select();
+            }
+        });
+    };*/
 });
 
 /*

@@ -56,10 +56,10 @@
                                 <td colspan=2><h3>Parse statements:</h3></td>
                             </tr>
                             <tr>
-                                <td colspan=2><button id="btn_parse_conjunct">∧</button><button id="btn_parse_disjunct">∨</button><button id="btn_parse_negate">¬</button></td>
+                                <td colspan=2><button id="btn_parse_conjunct">∧</button><button id="btn_parse_disjunct">∨</button><button id="btn_parse_negate">¬</button><button id="btn_parse_brackets"><strong>(</strong>a∨b<strong>)</strong></button></td>
                             </tr>
                             <tr>
-                                <td colspan=2><textarea id="txt_parseStmt" placeholder="Add your logical statements here!" wrap="hard" cols=30 rows=7>(¬b∧(a∨((b∧a)∨a)∨b))∨(b∨¬a)∨c</textarea></td>
+                                <td colspan=2><textarea id="txt_parseStmt" placeholder="Add your logical statements here!" wrap="hard" cols=30 rows=7>b∧a</textarea></td>
                             </tr>
                             <tr>
                                 <td width=75><button id="btn_parse">Process</button></td>
@@ -84,6 +84,12 @@
                 <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 0px 0;"></span>
                 Please choose a value<br />
                 between 1 and 2147483647!
+            </p>
+        </div>
+        <div id="dialog_parse_notable" title="Parse statements: No table.">
+            <p>
+                <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 0px 0;"></span>
+                Please add a table, first!
             </p>
         </div>
         <!-- /dialogs -->
