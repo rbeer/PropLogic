@@ -49,12 +49,13 @@ charCodes for special characters
 // = 1 - (1 - (a
 */
 
-var BolAlg = function() { 'use strict'; return new BolAlg.init(); };
+var BolAlg = function(tt) { 'use strict'; return new BolAlg.init(tt); };
 
 BolAlg = BolAlg.prototype = {
 
     statements: new Array(),
-    ttTarget: null,
+    ttObject: null,
+    ttId: null,
 
     /**
      * Constructor
@@ -63,15 +64,15 @@ BolAlg = BolAlg.prototype = {
      * @constructor
      */
     init: function(tt) {
-        this.ttTarget = tt;
-        console.log(this.ttTarget);
+        this.ttObject = tt;
+        this.ttId = tt.pager.match('[0-9]+$')[0];
         return;
     },
 
     updateTableData: function() {
-        var rows = this.ttTarget.datastr.rows,
-              colNames = this.ttTarget.datastr.colNames,
-              colModel = this.ttTarget.datastr.colModel,
+        var rows = this.ttObject.datastr.rows,
+              colNames = this.ttObject.datastr.colNames,
+              colModel = this.ttObject.datastr.colModel,
               tmpModel = null,
               cell = null,
               cellen = 0;
@@ -192,20 +193,29 @@ BolAlg = BolAlg.prototype = {
         this.expr = this.wexpr = expr;
         this.evaluated = null;
         this.showInTable = true;
-        this.rows = [
-            {'id': 0, 'cell': [true, true]}/*,
+        /*this.rows = [
+            {'id': 0, 'cell': [true, true]},
             {'id': 1, 'cell': [false, true]},
             {'id': 2, 'cell': [true, false]},
-            {'id': 3, 'cell': [false, false]}*/
-        ];
-        this.vars = {
+            {'id': 3, 'cell': [false, false]}
+        ];*/
+        this.rows = BolAlg.ttObject.datastr.rows;
+        /*this.vars = {
             a: 0,
             b: 1,
             getValue: function(v, row) {
                 return (v == 'false') ? false :
                             (v == 'true') ? true : row.cell[this[v]];
             }
+        };*/
+        this.vars = BolAlg.ttObject.datastr.colNames;
+        this.getVarValue = function (v, row) {
+            var idxInCell = this.vars.indexOf(v);
+            return (v == 'false') ? false :
+                        (v == 'true') ? true :
+                        row.cell[idxInCell];
         };
+        
 
         //this.operator = '',
         // position of last operator in expression
@@ -260,9 +270,9 @@ BolAlg = BolAlg.prototype = {
                         var left = this.wexpr.slice(this.lop + 1, i);
                         if (left[0] == BolAlg.Operators.NEGATE) {
                             left = left.slice(1, left.length);
-                            var oArray = [!this.vars.getValue(left, row)];
+                            var oArray = [!this.getVarValue(left, row)];
                         } else {
-                            var oArray = [this.vars.getValue(left, row)];
+                            var oArray = [this.getVarValue(left, row)];
                         }
                     } else {
                         oArray.push(this.lasteval);
@@ -279,9 +289,9 @@ BolAlg = BolAlg.prototype = {
                     var right = this.wexpr.slice(i + 1, nop);
                     if (right[0] == BolAlg.Operators.NEGATE) {
                         right = right.slice(1, right.length);
-                        oArray.push(!this.vars.getValue(right, row));
+                        oArray.push(!this.getVarValue(right, row));
                     } else {
-                        oArray.push(this.vars.getValue(right, row));
+                        oArray.push(this.getVarValue(right, row));
                     }
 
                     this.lasteval = this.oiu(oArray);
@@ -294,6 +304,15 @@ BolAlg = BolAlg.prototype = {
                         // evaluation (for this 'piece'),
                         // so lasteval becomes our final result
                         this.evaluated = this.lasteval;
+                        // reset lasteval so next row iteration gets
+                        // a fresh start
+                        this.lasteval = null;
+                        // reset value Array
+                        oArray.length = 0;
+                        // reset Last Operator Position
+                        this.lop = -1;
+                        // reset Operation In Use
+                        this.oiu = null;
                         break;
                     }
 
@@ -305,8 +324,10 @@ BolAlg = BolAlg.prototype = {
                     // inbetween.
                     i = nop - 1;
                 }
+                row.cell.push(this.evaluated);
                 console.log(this);
             }, this);
+            //throw 'exp stop';
         };
 
         this.getNOP = function() {
@@ -345,7 +366,14 @@ BolAlg = BolAlg.prototype = {
         var parts = [text];
         var openPos = new Array();
         var closePos = new Array();
-        var btc = 0;
+        /**
+         * Brackets To Close
+         * Gets updated, every time a bracket (open +1, close -1) is
+         * found.
+         * Initialized with -1, to determine, if there are no brackets, at all.
+         * @type {Number}
+         */
+        var btc = -1;
         var fob = -1;
         var lob = new Array();
         var lcb = 0;
@@ -355,6 +383,7 @@ BolAlg = BolAlg.prototype = {
             console.log(i + ': ' + text[i]);
             switch (text[i]) {
                 case '(':
+                    btc = (btc == -1) ? 0 : btc;
                     openPos.push(i);
                     lob.push(i);
                     if (btc == 0) {
@@ -367,7 +396,9 @@ BolAlg = BolAlg.prototype = {
                     break;
                 case ')':
                     closePos.push(i);
-                    var newPiece = new this.piece(text.slice(lob.pop() + 1, i));
+                    var stmt = text.slice(lob.pop() + 1, i);
+                    var newPiece = new this.piece(stmt);
+                    TruthTable.addColumn(this.ttObject, stmt);
                     newPiece.evaluate();
                     this.statements.push(newPiece);
 
@@ -384,11 +415,17 @@ BolAlg = BolAlg.prototype = {
                     break;
             }
         }
+
+        if (btc == -1) {
+            parts[1] = parts[0];
+            lcb = text.length - 1;
+        }
+
         if (lcb != text.length - 1) {
             parts.push(text.slice(lcb + 1, text.length));
         }
 
-        // phew all that work, for?
+        // phew, all that work; for?
         // exactly this:
         // concatenate all results and evaluate
         var finalStatement = new String();
@@ -400,11 +437,17 @@ BolAlg = BolAlg.prototype = {
                 finalStatement = finalStatement + stmt;
             }
         }
+        TruthTable.addColumn(this.ttObject, finalStatement);
         var finalPiece = new this.piece(parts[0]);
         finalPiece.evaluate(finalStatement);
         console.log(parts);
         console.log(finalStatement);
         console.log(finalPiece);
+
+        // done and done...
+        // update TruthTable
+        
+        PropLogic.redrawTable(this.ttId);
 
         // throw a SyntaxError and exit, if
         // - more closing than openingi brackets
