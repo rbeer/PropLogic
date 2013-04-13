@@ -124,6 +124,18 @@ $('document').ready(function() {
     $('#btn_parse_brackets').click(function() {
         insert(document.getElementById('txt_parseStmt'), '(');
     });
+
+    $('#btn_parse_matcond').click(function() {
+        insert(document.getElementById('txt_parseStmt'), '→');
+    });
+
+    $('#btn_parse_bicond').click(function() {
+        insert(document.getElementById('txt_parseStmt'), '↔');
+    });
+
+    $('#btn_parse_eor').click(function() {
+        insert(document.getElementById('txt_parseStmt'), '⊕');
+    });
     
 
     /**
