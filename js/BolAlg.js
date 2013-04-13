@@ -99,10 +99,10 @@ BolAlg = BolAlg.prototype = {
     conjunct: function(values) {
         // return null if values is no Array
         //                   or values holds only one item
-        if (!(values instanceof Array) | values.length < 1) { return null; }
+        if (!(values instanceof Array) || values.length == 1) { return null; }
 
         // return conjunction of both if values holds only two items
-        if (values.length == 1) { return (values[0] & values[1]); }
+        if (values.length == 2) { return Boolean(values[0] & values[1]); }
 
         // otherwise initialize returnValue and loop the rest of values
         else { var retVal = values[0]; }
@@ -121,10 +121,10 @@ BolAlg = BolAlg.prototype = {
     disjunct: function(values) {
         // return null if values is no Array
         //                   or values holds only one item
-        if (!(values instanceof Array) | values.length < 1) { return null; }
+        if (!(values instanceof Array) || values.length == 1) { return null; }
 
         // return disjunction of both if values holds only two items
-        if (values.length == 1) { return (values[0] | values[1]); }
+        if (values.length == 2) { return Boolean(values[0] | values[1]); }
 
         // otherwise initialize returnValue and loop the rest of values
         else { var retVal = values[0]; }
@@ -147,17 +147,32 @@ BolAlg = BolAlg.prototype = {
     matcond: function(values) {
         // return null if values is no Array
         //                   or values holds only one item
-        if (!(values instanceof Array) | values.length < 1) { return null; }
+        if (!(values instanceof Array) || values.length == 1) { return null; }
 
-        // return disjunction of both if values holds only two items
-        if (values.length == 1) { return (!values[0] | values[1]); }
+        //    a → b
+        // = (¬a ∨ b)
+        return Boolean(!values[0] | values[1]);
+    },
 
-        // otherwise initialize returnValue and loop the rest of values
-        else { var retVal = values[0]; }
-        for (var i = 1; i < values.length; i++) {
-            retVal = retVal & values[i];
-        }
-        return retVal;
+    eor: function(values) {
+        // return null if values is no Array
+        //                   or values holds only one item
+        if (!(values instanceof Array) || values.length == 1) { return null; }
+
+        //   a ⊕ b
+        // = (a ∨ b) ∧ ¬(a ∧ b)
+        return Boolean((values[0] | values[1]) & !(values[0] & values[1]));
+    },
+
+    bicond: function (values) {
+        // return null if values is no Array
+        //                   or values holds only one item
+        if (!(values instanceof Array) || values.length == 1) { return null; }
+
+        //   a ↔ b
+        // = ¬(a ⊕ b)
+        // = ¬((a ∨ b) ∧ ¬(a ∧ b))
+        return Boolean(!((values[0] | values[1]) & !(values[0] & values[1])));
     },
 
 /**
@@ -172,6 +187,9 @@ BolAlg = BolAlg.prototype = {
     Operators: {
         CONJUNCT: '∧',
         DISJUNCT: '∨',
+        EOR: '⊕',
+        MATCOND: '→',
+        BICOND: '↔',
         NEGATE: '¬',
 
         isOperator: function(o) {
@@ -217,7 +235,6 @@ BolAlg = BolAlg.prototype = {
         };
         
 
-        //this.operator = '',
         // position of last operator in expression
         this.lop = -1;
         // next operator
@@ -260,6 +277,15 @@ BolAlg = BolAlg.prototype = {
                             break;
                         case BolAlg.Operators.DISJUNCT:
                             this.oiu = BolAlg.disjunct;
+                            break;
+                        case BolAlg.Operators.EOR:
+                            this.oiu - BolAlg.eor;
+                            break;
+                        case BolAlg.Operators.MATCOND:
+                            this.oiu = BolAlg.matcond;
+                            break;
+                        case BolAlg.Operators.BICOND:
+                            this.oiu = BolAlg.bicond;
                             break;
                         default:
                             continue;
@@ -446,11 +472,10 @@ BolAlg = BolAlg.prototype = {
 
         // done and done...
         // update TruthTable
-        
         PropLogic.redrawTable(this.ttId);
 
         // throw a SyntaxError and exit, if
-        // - more closing than openingi brackets
+        // - more closing than opening brackets
         // - more opening than closing brackets
         if (openPos.length < closePos.length) {
             throw new SyntaxError("You're missing an opening bracket.");
