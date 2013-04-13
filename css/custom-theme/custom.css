@@ -162,7 +162,7 @@ a:hover {
 }
 
 .ui-jqgrid-titlebar-active {
-  background: url(images/ui-bg_highlight-soft_75_cccccc_1x100_active.png) 50% 50% repeat-x;
+  background: url(images/titlebar_active.png) 50% 50% repeat-x;
 }
 
 .ui-dialog {
