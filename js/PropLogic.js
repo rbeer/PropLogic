@@ -49,6 +49,19 @@ PropLogic = PropLogic.prototype = {
                 }
             }
         });
+        $('#dialog_parse_nostmt').dialog({
+            autoOpen: false,
+            resizable: false,
+            height: 170,
+            width: 290,
+            modal: true,
+            closeOnEscape: true,
+            buttons: {
+                Ok: function() {
+                    $(this).dialog('close');
+                }
+            }
+        });
     },
 
     addTable: function(tVars) {
@@ -188,7 +201,10 @@ PropLogic = PropLogic.prototype = {
 
     getActiveId: function() {
         var nodeID = $('.ui-jqgrid-active').attr('id');
-        if (typeof nodeID === 'undefined') $('#dialog_parse_notable').dialog('open');
+        if (typeof nodeID === 'undefined') {
+            $('#dialog_parse_notable').dialog('open');
+            throw 'getActiveId: no table!';
+        }
         return nodeID.slice(nodeID.search('-') + 1);
     },
 
