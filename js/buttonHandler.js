@@ -100,8 +100,13 @@ $('document').ready(function() {
     });
 
     $('#btn_parse').click(function() {
+        var stmt = $('#txt_parseStmt').val();
+        if (stmt === '') {
+            $('#dialog_parse_nostmt').dialog('open');
+            throw 'btn_parse.click: no statement!';
+        }
         BolAlg.init(PropLogic.tableData[PropLogic.getActiveId()]);
-        BolAlg.parse($('#txt_parseStmt').val());
+        BolAlg.parse(stmt);
     });
 
     $('#btn_parse_conjunct').click(function() {
