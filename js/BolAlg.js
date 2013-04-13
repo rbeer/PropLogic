@@ -279,7 +279,7 @@ BolAlg = BolAlg.prototype = {
                             this.oiu = BolAlg.disjunct;
                             break;
                         case BolAlg.Operators.EOR:
-                            this.oiu - BolAlg.eor;
+                            this.oiu = BolAlg.eor;
                             break;
                         case BolAlg.Operators.MATCOND:
                             this.oiu = BolAlg.matcond;
