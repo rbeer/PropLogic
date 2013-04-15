@@ -94,19 +94,6 @@ PropLogic = PropLogic.prototype = {
         //                                                has been cleared!?)
         // grid.jqGrid('GridUnload');
 
-        // adding real close button
-        /*var temp = $("")
-         .addClass('ui-jqgrid-titlebar-close HeaderButton')
-         .click (function () {
-               $(this).parents ('.ui-jqgrid').remove ();
-         })
-         .hover(
-           function() {$(this).addClass('ui-state-hover');},
-               function() {$(this).removeClass('ui-state-hover');}
-             ).append (" ");
-         var dingens = $('#gbox_tTable-'+ id + '.ui-jqgrid-titlebar-close');
-         dingens.before (temp);*/
-
         // assign new data to grid
         grid.jqGrid(this.tableData[id]);
 
@@ -117,6 +104,21 @@ PropLogic = PropLogic.prototype = {
 
         // set grid to given position
         if (typeof gridPos === 'object') $('#gbox_tTable-' + id).offset(gridPos);
+
+        var tbar = $('#gview_tTable-' + id).children('.ui-jqgrid-titlebar');
+        // push minimize button 22px to the left,
+        // making room for close button
+        $(tbar).children('.ui-jqgrid-titlebar-close').css("right","20px");
+        // add close button to title bar
+        var akill= $("<a role='link' href='javascript:void(0)' id='tTable_kill-" + id + "' />").addClass('ui-jqgrid-titlebar-kill HeaderButton').hover(
+            function(){ akill.addClass('ui-state-hover');},
+            function() {akill.removeClass('ui-state-hover');})
+        .append("<span class='ui-icon ui-icon-circle-close'></span>").css("right","1px");
+        $(akill).click(function() {
+            var id = $(this).attr('id').split('-')[1];
+            PropLogic.killTable(Number(id));
+        });
+        $(tbar).append(akill);
 
         // make new table draggable
         PropLogic.makeDraggable(id);
@@ -130,6 +132,44 @@ PropLogic = PropLogic.prototype = {
         var gridPos = $('#gbox_tTable-' + id).offset();
         grid.jqGrid('GridDestroy');
         PropLogic.drawTable(id, gridPos);
+    },
+
+    killTable: function(id) {
+        var grid = $('#tTable-' + id);
+        grid.jqGrid('GridDestroy');
+        var cont = document.getElementById('tTableContainer-' + id);
+        cont.parentNode.removeChild(cont);
+        var amod = document.getElementById('alertmod_tTable-' + id);
+        amod.parentNode.removeChild(amod);
+
+        var fstart = -1;
+        // grid is the very first:
+        // shift array,
+        // re-arrange all other table ids
+        if (id === 0) {
+            fstart = 1;
+            PropLogic.tableData.shift();
+        }
+        // grid is the very last, so just pop it
+        // (no re-arranging of any ids necessary)
+        else if (id === PropLogic.tableData.length - 1) {
+            PropLogic.tableData.pop();
+        }
+        // any other case means, deleted grid is somewhere
+        // in between:
+        // splice that element from tableData,
+        // re-arrange ids of tables AFTER removed one
+        else {
+            fstart = id;
+            PropLogic.tableData.splice(id, 1);
+        }
+        for (var i = fstart; i <= PropLogic.tableData.length; i++) {
+            $(':regex(id,tTable\\w*-' + i + ')').each(function() {
+                var oid = $(this).attr('id');
+                var nid = oid.replace('-' + i, '-' + (i - 1));
+                $(this).attr('id', nid);
+            });
+        }
     },
 
     createDomTable: function(id) {

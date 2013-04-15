@@ -93,6 +93,12 @@ String.prototype.globalTrim = function() {
 };
 
 if (!('contains' in String.prototype))
+  /**
+   * indexOf with starting offset.
+   * @param  {String} str Expression to look for.
+   * @param  {Number} startIndex Offset, where to start.
+   * @return {Number} True if match found, false if not.
+   */
   String.prototype.contains = function(str, startIndex) {
     return -1 !== this.indexOf(str, startIndex);
   };
@@ -118,4 +124,28 @@ Boolean.prototype.repeat = function(_num) {
     }
 
     return _bolArray;
+};
+
+/**
+ * Adds regex capability to jQuery selectors.
+ * @param  {String} elem Attribute to look in.
+ * @param  {[type]} index [description].
+ * @param  {[type]} match [description].
+ * @return {[type]}       [description].
+ * @author James Padolsey
+ * @{@link http://james.padolsey.com/javascript/regex-selector-for-jquery/}
+ */
+jQuery.expr[':'].regex = function(elem, index, match) {
+    var matchParams = match[3].split(','),
+        validLabels = /^(data|css):/,
+        attr = {
+            method: matchParams[0].match(validLabels) ?
+                        matchParams[0].split(':')[0] : 'attr',
+            property: matchParams.shift().replace(validLabels, '')
+        },
+        regexFlags = 'ig',
+        regex = new RegExp(
+          matchParams.join('').replace(/^\s+|\s+$/g, ''), regexFlags
+        );
+    return regex.test(jQuery(elem)[attr.method](attr.property));
 };
