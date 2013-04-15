@@ -172,3 +172,12 @@ a:hover {
 .ui-widget-overlay {
   z-index: 998;
 }
+
+.ui-jqgrid-titlebar-kill {
+  position: absolute;
+  top: 50%;
+  width: 19px;
+  margin: -10px 0 0 0;
+  padding: 1px;
+  height: 18px;
+}
