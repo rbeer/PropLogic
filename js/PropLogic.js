@@ -142,7 +142,10 @@ PropLogic = PropLogic.prototype = {
         var amod = document.getElementById('alertmod_tTable-' + id);
         amod.parentNode.removeChild(amod);
 
-        var fstart = -1;
+        // set for-loop* start to current tableData length
+        // knowing, that this loop will never execute, as
+        // one table is gonna be removed
+        var fstart = PropLogic.tableData.length;
         // grid is the very first:
         // shift array,
         // re-arrange all other table ids
@@ -163,6 +166,7 @@ PropLogic = PropLogic.prototype = {
             fstart = id;
             PropLogic.tableData.splice(id, 1);
         }
+        // decrement all necessary id's
         for (var i = fstart; i <= PropLogic.tableData.length; i++) {
             $(':regex(id,tTable\\w*-' + i + ')').each(function() {
                 var oid = $(this).attr('id');
