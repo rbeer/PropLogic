@@ -1,4 +1,8 @@
-PropLogic 0.0.3
-
+PropLogic 0.1.0
+=================
 Calculate truth-tables and work with them,
 Including parsing simple logical statements.
+
+Demo
+------
+http://sivo-dev.bplaced.net/PropLogic-0_1_0/
